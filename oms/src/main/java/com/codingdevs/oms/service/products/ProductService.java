@@ -1,5 +1,6 @@
 package com.codingdevs.oms.service.products;
 
+import com.codingdevs.oms.model.products.Image;
 import com.codingdevs.oms.model.products.Product;
 import com.codingdevs.oms.repository.products.ProductRepository;
 import com.mongodb.BasicDBObject;
@@ -35,31 +36,35 @@ public class ProductService {
 
   public Product saveProduct(Product product, List<MultipartFile> files)
     throws IOException {
-    for (MultipartFile file : files) {
-      byte[] compressedImg = compressImg(file.getBytes());
-      DBObject metaData = new BasicDBObject();
-      metaData.put("type", "image");
-      metaData.put("productId", product.getId());
-      List<String> imageIds = new ArrayList<>();
-      for (String imageId : imageIds) {
-        ObjectId objectId = gridFsTemplate.store(
-          new ByteArrayInputStream(compressedImg),
-          file.getOriginalFilename(),
-          file.getContentType(),
-          metaData
-        );
-        imageIds.add(objectId.toString());
-      }
-      product.setImageIds(imageIds);
-    }
-    return productRepository.save(product);
+        List<Image> images = new ArrayList<>();
+        for (MultipartFile file : files) {
+            byte[] compressedImage = compressImg(file.getBytes());
+
+            Image image = new Image();
+            image.setImageName(file.getOriginalFilename());
+            image.setImageData(compressedImage);
+
+            // Store compressed image in GridFS
+            DBObject metaData = new BasicDBObject();
+            metaData.put("type", "image");
+            metaData.put("productId", product.getId());
+
+            ObjectId objectId = gridFsTemplate.store(new ByteArrayInputStream(compressedImage), file.getOriginalFilename(), file.getContentType(), metaData);
+            image.setImageId(objectId.toString());
+
+            images.add(image);
+        }
+
+        product.setImages(images);
+
+        return productRepository.save(product);
   }
 
   public void deleteProduct(String id) {
     productRepository.deleteById(id);
   }
 
-  public Product updateProduct(String id, Product product) {
+  /*public Product updateProduct(String id, Product product) {
     Optional<Product> optionalProduct = productRepository.findById(id);
     if (optionalProduct.isPresent()) {
       Product existingProduct = optionalProduct.get();
@@ -71,33 +76,30 @@ public class ProductService {
     } else {
       throw new IllegalStateException("Product not found");
     }
-  }
+  }*/
 
   public Optional<Product> getProductById(String id) {
     return productRepository.findById(id);
   }
 
-  public List<Product> getAllProducts(String id) throws IllegalStateException, IOException {
-    List<Product> products = productRepository.findByCustomerId(id);
-    for (Product product : products) {
-      List<String> imageIds = product.getImageIds();
-      List<String> imageIdList = new ArrayList<>();
-      List<byte[]> imageDatas = new ArrayList<>();
-      for (String imageId : imageIds) {
-        GridFSFile imageFile = gridFsTemplate.findOne(
-          new Query(Criteria.where("_id").is(new ObjectId(imageId)))
-        );
-        if (imageFile != null) {
-          imageIdList.add(imageFile.getObjectId().toString());
-          GridFsResource resource = gridFsTemplate.getResource(imageFile);
-          byte[] imageBytes = StreamUtils.copyToByteArray(resource.getInputStream());
-          imageDatas.add(imageBytes);
+  public List<Product> getAllProducts(String cid) throws IllegalStateException, IOException {
+    List<Product> products = productRepository.findByCustomerId(cid);
+        for (Product product : products) {
+            for (Image image : product.getImages()) {
+                GridFSFile file = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(new ObjectId(image.getImageId()))));
+                if (file != null) {
+                    try {
+                        GridFsResource resource = gridFsTemplate.getResource(file);
+                        byte[] imageBytes = StreamUtils.copyToByteArray(resource.getInputStream());
+                        image.setImageData(imageBytes);
+                    } catch (IOException e) {
+                        // Handle exception
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
-      }
-      product.setImageIds(imageIdList);
-      product.setImageData(imageDatas);
-    }
-    return products;
+        return products;
   }
 
   private byte[] compressImg(byte[] imageData) throws IOException {

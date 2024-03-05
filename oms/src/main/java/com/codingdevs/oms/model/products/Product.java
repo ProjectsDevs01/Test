@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+
 @Document(collection = "products")
 @Data
 @NoArgsConstructor
@@ -19,6 +20,5 @@ public class Product {
   private String customerId;
 
   private Map<String, String> data;
-  private List<String> imageIds;
-  private List<byte[]> imageData;
+  private List<Image> images;
 }
