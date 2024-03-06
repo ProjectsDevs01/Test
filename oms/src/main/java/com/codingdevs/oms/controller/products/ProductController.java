@@ -64,7 +64,7 @@ public class ProductController {
     return ResponseEntity.ok(products);
   }
 
-  @PutMapping("/{customerId}/{category}/{id}")
+  @PutMapping("/{id}")
   public ResponseEntity<Product> updateProduct(
     @PathVariable String id,
     @RequestParam("formData") Map<String, String> productData,
