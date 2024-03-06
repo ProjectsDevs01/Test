@@ -1,5 +1,6 @@
 package com.codingdevs.oms.service.products;
 
+import ch.qos.logback.core.joran.conditional.ElseAction;
 import com.codingdevs.oms.model.products.Image;
 import com.codingdevs.oms.model.products.Product;
 import com.codingdevs.oms.repository.products.ProductRepository;
@@ -36,76 +37,128 @@ public class ProductService {
 
   public Product saveProduct(Product product, List<MultipartFile> files)
     throws IOException {
-        List<Image> images = new ArrayList<>();
-        for (MultipartFile file : files) {
-            byte[] compressedImage = compressImg(file.getBytes());
+    List<Image> images = new ArrayList<>();
+    for (int i = 0; i < files.size(); i++) {
+      MultipartFile file = files.get(i);
+      byte[] compressedImage = compressImg(file.getBytes());
+      //byte[] compressedImage = file.getBytes();
 
-            Image image = new Image();
-            image.setImageName(file.getOriginalFilename());
-            image.setImageData(compressedImage);
+      Image image = new Image();
+      // image.setImageName(file.getOriginalFilename());
+      if (i == 0) image.setImageName("fimg"); else if (
+        i == 1
+      ) image.setImageName("limg"); else image.setImageName("rimg");
 
-            // Store compressed image in GridFS
-            DBObject metaData = new BasicDBObject();
-            metaData.put("type", "image");
-            metaData.put("productId", product.getId());
+      image.setImageData(compressedImage);
 
-            ObjectId objectId = gridFsTemplate.store(new ByteArrayInputStream(compressedImage), file.getOriginalFilename(), file.getContentType(), metaData);
-            image.setImageId(objectId.toString());
+      // Store compressed image in GridFS
+      DBObject metaData = new BasicDBObject();
+      metaData.put("type", "image");
+      metaData.put("productId", product.getId());
 
-            images.add(image);
-        }
+      ObjectId objectId = gridFsTemplate.store(
+        new ByteArrayInputStream(compressedImage),
+        file.getOriginalFilename(),
+        file.getContentType(),
+        metaData
+      );
+      image.setImageId(objectId.toString());
 
-        product.setImages(images);
+      images.add(image);
+    }
 
-        return productRepository.save(product);
+    product.setImages(images);
+
+    return productRepository.save(product);
   }
 
   public void deleteProduct(String id) {
+    Product product = productRepository.findById(id).get();
+    for (Image image : product.getImages()) {
+      gridFsTemplate.delete(
+        new Query(Criteria.where("_id").is(new ObjectId(image.getImageId())))
+      );
+    }
     productRepository.deleteById(id);
   }
 
-  /*public Product updateProduct(String id, Product product) {
+  public Product updateProduct(
+    String id,
+    Product product,
+    List<MultipartFile> files
+  ) throws IOException {
     Optional<Product> optionalProduct = productRepository.findById(id);
     if (optionalProduct.isPresent()) {
       Product existingProduct = optionalProduct.get();
 
-      existingProduct.setImageIds(product.getImageIds());
+      for (Image image : product.getImages()) {
+        gridFsTemplate.delete(
+          new Query(Criteria.where("_id").is(new ObjectId(image.getImageId())))
+        );
+      }
       existingProduct.setData(product.getData());
+
+      List<Image> images = new ArrayList<>();
+      for (int i = 0; i < files.size(); i++) {
+        MultipartFile file = files.get(i);
+        byte[] compressedImage = compressImg(file.getBytes());
+        Image image = new Image();
+        if (i == 0) image.setImageName("image"); else if (
+          i == 1
+        ) image.setImageName("limg"); else image.setImageName("rimg");
+        image.setImageData(compressedImage);
+
+        DBObject metaData = new BasicDBObject();
+        metaData.put("type", "image");
+        metaData.put("productId", id);
+
+        ObjectId objectId = gridFsTemplate.store(
+          new ByteArrayInputStream(compressedImage),
+          image.getImageName(),
+          metaData
+        );
+        image.setImageId(objectId.toString());
+        images.add(image);
+      }
+      product.setImages(images);
 
       return productRepository.save(existingProduct);
     } else {
       throw new IllegalStateException("Product not found");
     }
-  }*/
+  }
 
   public Optional<Product> getProductById(String id) {
     return productRepository.findById(id);
   }
 
-  public List<Product> getAllProducts(String cid) throws IllegalStateException, IOException {
+  public List<Product> getAllProducts(String cid)
+    throws IllegalStateException, IOException {
     List<Product> products = productRepository.findByCustomerId(cid);
-        for (Product product : products) {
-            for (Image image : product.getImages()) {
-                GridFSFile file = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(new ObjectId(image.getImageId()))));
-                if (file != null) {
-                    try {
-                        GridFsResource resource = gridFsTemplate.getResource(file);
-                        byte[] imageBytes = StreamUtils.copyToByteArray(resource.getInputStream());
-                        image.setImageData(imageBytes);
-                    } catch (IOException e) {
-                        // Handle exception
-                        e.printStackTrace();
-                    }
-                }
-            }
+    for (Product product : products) {
+      for (Image image : product.getImages()) {
+        GridFSFile file = gridFsTemplate.findOne(
+          new Query(Criteria.where("_id").is(new ObjectId(image.getImageId())))
+        );
+        if (file != null) {
+          try {
+            GridFsResource resource = gridFsTemplate.getResource(file);
+            byte[] imageBytes = StreamUtils.copyToByteArray(
+              resource.getInputStream()
+            );
+            image.setImageData(imageBytes);
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
         }
-        return products;
+      }
+    }
+    return products;
   }
 
   private byte[] compressImg(byte[] imageData) throws IOException {
     BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageData));
 
-    // Resize the image to a smaller size (e.g., 800x600)
     int targetWidth = 800;
     int targetHeight = 600;
     BufferedImage resizedImage = Scalr.resize(
@@ -116,10 +169,8 @@ public class ProductService {
       targetHeight
     );
 
-    // Create a ByteArrayOutputStream to hold the compressed image data
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    // Write the compressed image data to the ByteArrayOutputStream with quality setting
     ImageIO.write(resizedImage, "jpg", outputStream);
 
     return outputStream.toByteArray();

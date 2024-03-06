@@ -19,4 +19,6 @@ public class Customer {
   private String address;
   private String phone;
   private String emailAddress;
+  private String companyName;
+  private String gstNumber;
 }

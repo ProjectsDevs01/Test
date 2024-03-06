@@ -64,6 +64,9 @@ public class CustomerService {
       existingCustomer.setPhone(customer.getPhone());
       existingCustomer.setAddress(customer.getAddress());
       existingCustomer.setEmailAddress(customer.getEmailAddress());
+      existingCustomer.setCompanyName(customer.getCompanyName());
+      existingCustomer.setGstNumber(customer.getGstNumber());
+
       return customerRepository.save(existingCustomer);
     } else {
       throw new IllegalStateException("Client not found");
