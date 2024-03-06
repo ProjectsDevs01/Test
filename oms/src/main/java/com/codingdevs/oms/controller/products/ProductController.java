@@ -1,7 +1,6 @@
 package com.codingdevs.oms.controller.products;
 
 import com.codingdevs.oms.model.products.Product;
-import com.codingdevs.oms.repository.products.ProductRepository;
 import com.codingdevs.oms.service.products.ProductService;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,10 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-//import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-//import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -67,7 +64,7 @@ public class ProductController {
     return ResponseEntity.ok(products);
   }
 
-  @PutMapping("/{customerId}/{category}/{id}")
+  @PutMapping("/{id}")
   public ResponseEntity<Product> updateProduct(
     @PathVariable String id,
     @RequestParam("formData") Map<String, String> productData,
@@ -79,10 +76,8 @@ public class ProductController {
     List<MultipartFile> files = new ArrayList<>();
     files.add(imageFile);
 
-    if(lImgFile != null)
-      files.add(lImgFile);
-    if(rImgFile != null)
-      files.add(rImgFile);
+    if (lImgFile != null) files.add(lImgFile);
+    if (rImgFile != null) files.add(rImgFile);
 
     product.setData(productData);
     Product savedProduct = productService.updateProduct(id, product, files);

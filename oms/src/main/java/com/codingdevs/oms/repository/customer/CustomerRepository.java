@@ -1,6 +1,7 @@
-package com.codingdevs.oms.repository;
+package com.codingdevs.oms.repository.customer;
 
-import com.codingdevs.oms.model.Customer;
 import org.springframework.data.mongodb.repository.MongoRepository;
+
+import com.codingdevs.oms.model.customer.Customer;
 
 public interface CustomerRepository extends MongoRepository<Customer, String> {}

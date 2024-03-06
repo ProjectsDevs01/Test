@@ -1,9 +1,9 @@
-package com.codingdevs.oms.service;
+package com.codingdevs.oms.service.customer;
 
-import com.codingdevs.oms.model.Customer;
-import com.codingdevs.oms.model.CustomerDTO;
+import com.codingdevs.oms.model.customer.Customer;
+import com.codingdevs.oms.model.customer.CustomerDTO;
 import com.codingdevs.oms.model.products.Product;
-import com.codingdevs.oms.repository.CustomerRepository;
+import com.codingdevs.oms.repository.customer.CustomerRepository;
 import com.codingdevs.oms.repository.products.ProductRepository;
 import java.util.List;
 import java.util.Optional;
