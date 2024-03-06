@@ -30,10 +30,6 @@ public class PdfController {
 
     ByteArrayResource resource = new ByteArrayResource(pdfBytes);
 
-    return 
-      ResponseEntity
-        .ok()
-        .headers(headers)
-        .body(resource);
+    return ResponseEntity.ok().headers(headers).body(resource);
   }
 }

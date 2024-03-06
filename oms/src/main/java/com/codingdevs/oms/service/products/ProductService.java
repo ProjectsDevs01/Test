@@ -1,6 +1,5 @@
 package com.codingdevs.oms.service.products;
 
-import ch.qos.logback.core.joran.conditional.ElseAction;
 import com.codingdevs.oms.model.products.Image;
 import com.codingdevs.oms.model.products.Product;
 import com.codingdevs.oms.repository.products.ProductRepository;
