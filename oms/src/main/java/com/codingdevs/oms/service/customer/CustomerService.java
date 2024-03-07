@@ -5,6 +5,7 @@ import com.codingdevs.oms.model.customer.CustomerDTO;
 import com.codingdevs.oms.model.products.Product;
 import com.codingdevs.oms.repository.customer.CustomerRepository;
 import com.codingdevs.oms.repository.products.ProductRepository;
+import com.codingdevs.oms.service.products.ProductService;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,6 +26,9 @@ public class CustomerService {
   private ProductRepository productRepository;
 
   @Autowired
+  private ProductService productService;
+
+  @Autowired
   MongoTemplate mongoTemplate;
 
   public List<Customer> getAllCustomers() {
@@ -41,7 +45,9 @@ public class CustomerService {
     if (productList.isEmpty()) {
       customerRepository.deleteById(id);
     } else {
-      productRepository.deleteAll(productList);
+      for (Product product : productList) {
+        productService.deleteProduct(product.getId());
+      }
       customerRepository.deleteById(id);
     }
   }

@@ -5,6 +5,7 @@ import com.codingdevs.oms.model.products.Product;
 import com.codingdevs.oms.repository.products.ProductRepository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -17,6 +18,7 @@ import javax.imageio.ImageIO;
 import org.bson.types.ObjectId;
 import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
@@ -44,13 +46,12 @@ public class ProductService {
 
       Image image = new Image();
       // image.setImageName(file.getOriginalFilename());
-      if (i == 0) image.setImageName("fimg"); else if (
+      if (i == 0) image.setImageName("image"); else if (
         i == 1
-      ) image.setImageName("limg"); else image.setImageName("rimg");
+      ) image.setImageName("fimg"); else image.setImageName("limg");
 
-      image.setImageData(compressedImage);
+      //image.setImageData(compressedImage);
 
-      // Store compressed image in GridFS
       DBObject metaData = new BasicDBObject();
       metaData.put("type", "image");
       metaData.put("productId", product.getId());
@@ -72,13 +73,20 @@ public class ProductService {
   }
 
   public void deleteProduct(String id) {
-    Product product = productRepository.findById(id).get();
-    for (Image image : product.getImages()) {
-      gridFsTemplate.delete(
-        new Query(Criteria.where("_id").is(new ObjectId(image.getImageId())))
-      );
+    Optional<Product> optionalProduct = productRepository.findById(id);
+    if (optionalProduct.isPresent()) {
+      Product product = optionalProduct.get();
+      if (!product.getImages().isEmpty()) {
+        for (Image image : product.getImages()) {
+          gridFsTemplate.delete(
+            new Query(
+              Criteria.where("_id").is(new ObjectId(image.getImageId()))
+            )
+          );
+        }
+      }
+      productRepository.deleteById(id);
     }
-    productRepository.deleteById(id);
   }
 
   public Product updateProduct(
@@ -105,7 +113,7 @@ public class ProductService {
         if (i == 0) image.setImageName("image"); else if (
           i == 1
         ) image.setImageName("limg"); else image.setImageName("rimg");
-        image.setImageData(compressedImage);
+        //image.setImageData(compressedImage);
 
         DBObject metaData = new BasicDBObject();
         metaData.put("type", "image");

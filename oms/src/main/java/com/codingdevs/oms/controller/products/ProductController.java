@@ -31,19 +31,23 @@ public class ProductController {
     @PathVariable String category,
     @RequestParam Map<String, String> productData,
     @RequestParam("image") MultipartFile imageFile,
-    @RequestParam(value = "limg", required = false) MultipartFile lImgFile,
-    @RequestParam(value = "rimg", required = false) MultipartFile rImgFile
+    @RequestParam(value = "fimg", required = false) MultipartFile fImgFile,
+    @RequestParam(value = "limg", required = false) MultipartFile lImgFile
   ) throws Exception {
     Product product = new Product();
     List<MultipartFile> files = new ArrayList<>();
 
+    if (productData.isEmpty() || imageFile.isEmpty()) {
+      return ResponseEntity.badRequest().build();
+    }
+
     files.add(imageFile);
 
+    if (fImgFile != null) {
+      files.add(fImgFile);
+    }
     if (lImgFile != null) {
       files.add(lImgFile);
-    }
-    if (rImgFile != null) {
-      files.add(rImgFile);
     }
 
     product.setCategory(category);
