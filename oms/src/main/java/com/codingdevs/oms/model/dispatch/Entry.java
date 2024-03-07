@@ -16,7 +16,7 @@ public class Entry {
   private String id;
 
   private String customerId;
-  private String customeName;
+  private String customerName;
   private String areaOfRoom;
   private String catalogName;
   private String quantity;
