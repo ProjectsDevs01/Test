@@ -2,9 +2,8 @@ package com.codingdevs.oms.service.customer;
 
 import com.codingdevs.oms.model.customer.Customer;
 import com.codingdevs.oms.model.customer.CustomerDTO;
-import com.codingdevs.oms.model.products.Product;
 import com.codingdevs.oms.repository.customer.CustomerRepository;
-import com.codingdevs.oms.repository.products.ProductRepository;
+import com.codingdevs.oms.service.dispatch.EntryService;
 import com.codingdevs.oms.service.products.ProductService;
 import java.util.List;
 import java.util.Optional;
@@ -23,10 +22,10 @@ public class CustomerService {
   private CustomerRepository customerRepository;
 
   @Autowired
-  private ProductRepository productRepository;
+  private ProductService productService;
 
   @Autowired
-  private ProductService productService;
+  private EntryService entryService;
 
   @Autowired
   MongoTemplate mongoTemplate;
@@ -43,15 +42,9 @@ public class CustomerService {
   }
 
   public void deleteCustomerById(String id) {
-    List<Product> productList = productRepository.findByCustomerId(id);
-    if (productList.isEmpty()) {
-      customerRepository.deleteById(id);
-    } else {
-      for (Product product : productList) {
-        productService.deleteProduct(product.getId());
-      }
-      customerRepository.deleteById(id);
-    }
+    productService.deleteAllProductsByCustomer(id);
+    entryService.deleteAllEntriesByCustomer(id);
+    customerRepository.deleteById(id);
   }
 
   public Optional<Customer> getCustomerById(String id) {

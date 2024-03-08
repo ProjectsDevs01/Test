@@ -87,6 +87,21 @@ public class ProductService {
     }
   }
 
+  public void deleteAllProductsByCustomer(String cid) {
+    List<Product> products = productRepository.findByCustomerId(cid);
+    if (products != null) {
+      for(Product product : products) {
+        for (Image image : product.getImages()) {
+          gridFsTemplate.delete(
+            new Query(Criteria.where("_id").is(new ObjectId(image.getImageId())))
+          );
+        }
+      }
+      productRepository.deleteAll(products);
+    }
+  }
+
+
   public Product updateProduct(
     String id,
     Product product,

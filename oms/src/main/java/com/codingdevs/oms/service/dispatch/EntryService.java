@@ -18,13 +18,21 @@ public class EntryService {
   }
 
   public List<Entry> getAllEntries(String customerId) {
-    return entryRepository.findByCustomerId(customerId);
+    List<Entry> entries = entryRepository.findByCustomerId(customerId);
+    if(entries.isEmpty() || entries == null) return null;
+    return entries;
   }
 
   public void deleteEntry(String entryId) {
     entryRepository.deleteById(entryId);
   }
 
+  public void deleteAllEntriesByCustomer(String customerId) {
+    List<Entry> entries = entryRepository.findByCustomerId(customerId);
+    if(entries != null) {
+      entryRepository.deleteAll(entries);
+    }
+  }
   public Entry updateEntry(String entryId, Entry entry) {
     Optional<Entry> optionalExixtingEntry = entryRepository.findById(entryId);
     if (optionalExixtingEntry.isPresent()) {
