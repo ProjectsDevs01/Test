@@ -37,9 +37,6 @@ public class EntryController {
     @PathVariable String customerId
   ) {
     List<Entry> entries = entryService.getAllEntries(customerId);
-    if (entries == null || entries.isEmpty()) return ResponseEntity
-      .notFound()
-      .build();
     return ResponseEntity.ok(entries);
   }
 

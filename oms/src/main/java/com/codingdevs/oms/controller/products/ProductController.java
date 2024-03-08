@@ -64,7 +64,6 @@ public class ProductController {
     @PathVariable String customerId
   ) throws IllegalStateException, IOException {
     List<Product> products = productService.getAllProducts(customerId);
-    if(products == null || products.isEmpty()) return ResponseEntity.notFound().build();
     return ResponseEntity.ok(products);
   }
 

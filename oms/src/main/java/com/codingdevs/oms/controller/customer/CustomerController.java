@@ -42,7 +42,6 @@ public class CustomerController {
   @GetMapping
   public ResponseEntity<List<Customer>> getAllCustomer() {
     List<Customer> customers = customerService.getAllCustomers();
-    if(customers == null || customers.isEmpty()) return ResponseEntity.notFound().build();
     return ResponseEntity.ok(customers);
   }
 
