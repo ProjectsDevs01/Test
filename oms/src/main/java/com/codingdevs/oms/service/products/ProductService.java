@@ -140,6 +140,7 @@ public class ProductService {
   public List<Product> getAllProducts(String cid)
     throws IllegalStateException, IOException {
     List<Product> products = productRepository.findByCustomerId(cid);
+    if(products.isEmpty()) return null;
     for (Product product : products) {
       for (Image image : product.getImages()) {
         GridFSFile file = gridFsTemplate.findOne(
