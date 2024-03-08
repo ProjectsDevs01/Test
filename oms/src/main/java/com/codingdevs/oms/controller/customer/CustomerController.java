@@ -36,14 +36,14 @@ public class CustomerController {
   public ResponseEntity<Customer> getCustomer(@PathVariable String id) {
     Optional<Customer> customer = customerService.getCustomerById(id);
     return customer
-      .map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-      .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+      .map(value -> ResponseEntity.ok().body(value))
+      .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
   @GetMapping
   public ResponseEntity<List<Customer>> getAllCustomer() {
     List<Customer> customers = customerService.getAllCustomers();
-
+    if(customers == null || customers.isEmpty()) return ResponseEntity.notFound().build();
     return ResponseEntity.ok(customers);
   }
 

@@ -32,7 +32,9 @@ public class CustomerService {
   MongoTemplate mongoTemplate;
 
   public List<Customer> getAllCustomers() {
-    return customerRepository.findAll();
+    List<Customer> customers = customerRepository.findAll();
+    if (customers == null || customers.isEmpty()) return null;
+    return customers;
   }
 
   public Customer saveCustomer(Customer customer) {
