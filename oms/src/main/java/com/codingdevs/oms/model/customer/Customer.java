@@ -1,11 +1,16 @@
-package com.codingdevs.oms.model;
+package com.codingdevs.oms.model.customer;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "customers")
-@Data
+@Getter
+@Setter
+@ToString
 public class Customer {
 
   @Id
@@ -19,4 +24,6 @@ public class Customer {
   private String address;
   private String phone;
   private String emailAddress;
+  private String companyName;
+  private String gstNumber;
 }

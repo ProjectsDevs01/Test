@@ -2,14 +2,18 @@ package com.codingdevs.oms.model.products;
 
 import java.util.List;
 import java.util.Map;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+
 @Document(collection = "products")
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@ToString
 public class Product {
 
   @Id
@@ -19,6 +23,5 @@ public class Product {
   private String customerId;
 
   private Map<String, String> data;
-  private List<String> imageIds;
-  private List<byte[]> imageData;
+  private List<Image> images;
 }

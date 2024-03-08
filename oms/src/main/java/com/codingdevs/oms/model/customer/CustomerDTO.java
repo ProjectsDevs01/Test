@@ -1,4 +1,4 @@
-package com.codingdevs.oms.model;
+package com.codingdevs.oms.model.customer;
 
 import lombok.Getter;
 import lombok.Setter;

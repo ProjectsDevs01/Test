@@ -1,10 +1,10 @@
-package com.codingdevs.oms.service;
+package com.codingdevs.oms.service.customer;
 
-import com.codingdevs.oms.model.Customer;
-import com.codingdevs.oms.model.CustomerDTO;
-import com.codingdevs.oms.model.products.Product;
-import com.codingdevs.oms.repository.CustomerRepository;
-import com.codingdevs.oms.repository.products.ProductRepository;
+import com.codingdevs.oms.model.customer.Customer;
+import com.codingdevs.oms.model.customer.CustomerDTO;
+import com.codingdevs.oms.repository.customer.CustomerRepository;
+import com.codingdevs.oms.service.dispatch.EntryService;
+import com.codingdevs.oms.service.products.ProductService;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,13 +22,18 @@ public class CustomerService {
   private CustomerRepository customerRepository;
 
   @Autowired
-  private ProductRepository productRepository;
+  private ProductService productService;
+
+  @Autowired
+  private EntryService entryService;
 
   @Autowired
   MongoTemplate mongoTemplate;
 
   public List<Customer> getAllCustomers() {
-    return customerRepository.findAll();
+    List<Customer> customers = customerRepository.findAll();
+    if (customers == null || customers.isEmpty()) return null;
+    return customers;
   }
 
   public Customer saveCustomer(Customer customer) {
@@ -37,13 +42,9 @@ public class CustomerService {
   }
 
   public void deleteCustomerById(String id) {
-    List<Product> productList = productRepository.findByCustomerId(id);
-    if (productList.isEmpty()) {
-      customerRepository.deleteById(id);
-    } else {
-      productRepository.deleteAll(productList);
-      customerRepository.deleteById(id);
-    }
+    productService.deleteAllProductsByCustomer(id);
+    entryService.deleteAllEntriesByCustomer(id);
+    customerRepository.deleteById(id);
   }
 
   public Optional<Customer> getCustomerById(String id) {
@@ -64,6 +65,9 @@ public class CustomerService {
       existingCustomer.setPhone(customer.getPhone());
       existingCustomer.setAddress(customer.getAddress());
       existingCustomer.setEmailAddress(customer.getEmailAddress());
+      existingCustomer.setCompanyName(customer.getCompanyName());
+      existingCustomer.setGstNumber(customer.getGstNumber());
+
       return customerRepository.save(existingCustomer);
     } else {
       throw new IllegalStateException("Client not found");
