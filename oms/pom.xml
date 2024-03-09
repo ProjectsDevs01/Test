@@ -78,7 +78,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        <finalName>order-taking</finalName>
+        <finalName>oms</finalName>
     </build>
 
 </project>
