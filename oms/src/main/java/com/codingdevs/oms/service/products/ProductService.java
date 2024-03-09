@@ -3,8 +3,6 @@ package com.codingdevs.oms.service.products;
 import com.codingdevs.oms.model.products.Image;
 import com.codingdevs.oms.model.products.Product;
 import com.codingdevs.oms.repository.products.ProductRepository;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -50,15 +48,15 @@ public class ProductService {
 
       //image.setImageData(compressedImage);
 
-      DBObject metaData = new BasicDBObject();
+      /*DBObject metaData = new BasicDBObject();
       metaData.put("type", "image");
-      metaData.put("productId", product.getId());
+      metaData.put("productId", product.getId());*/
 
       ObjectId objectId = gridFsTemplate.store(
         new ByteArrayInputStream(compressedImage),
         file.getOriginalFilename(),
         file.getContentType(),
-        metaData
+        null
       );
       image.setImageId(objectId.toString());
 
@@ -90,17 +88,18 @@ public class ProductService {
   public void deleteAllProductsByCustomer(String cid) {
     List<Product> products = productRepository.findByCustomerId(cid);
     if (products != null) {
-      for(Product product : products) {
+      for (Product product : products) {
         for (Image image : product.getImages()) {
           gridFsTemplate.delete(
-            new Query(Criteria.where("_id").is(new ObjectId(image.getImageId())))
+            new Query(
+              Criteria.where("_id").is(new ObjectId(image.getImageId()))
+            )
           );
         }
       }
       productRepository.deleteAll(products);
     }
   }
-
 
   public Product updateProduct(
     String id,
@@ -111,7 +110,7 @@ public class ProductService {
     if (optionalProduct.isPresent()) {
       Product existingProduct = optionalProduct.get();
 
-      for (Image image : product.getImages()) {
+      for (Image image : existingProduct.getImages()) {
         gridFsTemplate.delete(
           new Query(Criteria.where("_id").is(new ObjectId(image.getImageId())))
         );
@@ -125,17 +124,18 @@ public class ProductService {
         Image image = new Image();
         if (i == 0) image.setImageName("image"); else if (
           i == 1
-        ) image.setImageName("limg"); else image.setImageName("rimg");
+        ) image.setImageName("fimg"); else image.setImageName("limg");
         //image.setImageData(compressedImage);
 
-        DBObject metaData = new BasicDBObject();
+        /*DBObject metaData = new BasicDBObject();
         metaData.put("type", "image");
-        metaData.put("productId", id);
+        metaData.put("productId", id);*/
 
         ObjectId objectId = gridFsTemplate.store(
           new ByteArrayInputStream(compressedImage),
           image.getImageName(),
-          metaData
+          file.getContentType(),
+          null
         );
         image.setImageId(objectId.toString());
         images.add(image);
@@ -155,7 +155,7 @@ public class ProductService {
   public List<Product> getAllProducts(String cid)
     throws IllegalStateException, IOException {
     List<Product> products = productRepository.findByCustomerId(cid);
-    if(products.isEmpty()) return null;
+    if (products.isEmpty()) return null;
     for (Product product : products) {
       for (Image image : product.getImages()) {
         GridFSFile file = gridFsTemplate.findOne(

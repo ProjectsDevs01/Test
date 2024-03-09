@@ -66,7 +66,7 @@ public class ProductController {
   @PutMapping("/{id}")
   public ResponseEntity<Product> updateProduct(
     @PathVariable String id,
-    @RequestParam("formData") Map<String, String> productData,
+    @RequestParam Map<String, String> productData,
     @RequestParam("image") MultipartFile imageFile,
     @RequestParam(value = "fimg", required = false) MultipartFile fImgFile,
     @RequestParam(value = "limg", required = false) MultipartFile lImgFile
