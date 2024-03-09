@@ -43,12 +43,8 @@ public class ProductController {
 
     files.add(imageFile);
 
-    if (fImgFile != null) {
-      files.add(fImgFile);
-    }
-    if (lImgFile != null) {
-      files.add(lImgFile);
-    }
+    if (fImgFile != null) files.add(fImgFile);
+    if (lImgFile != null) files.add(lImgFile);
 
     product.setCategory(category);
     product.setCustomerId(customerId);
