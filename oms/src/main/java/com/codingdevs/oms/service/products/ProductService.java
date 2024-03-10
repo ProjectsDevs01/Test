@@ -125,12 +125,6 @@ public class ProductService {
         if (i == 0) image.setImageName("image"); else if (
           i == 1
         ) image.setImageName("fimg"); else image.setImageName("limg");
-        //image.setImageData(compressedImage);
-
-        /*DBObject metaData = new BasicDBObject();
-        metaData.put("type", "image");
-        metaData.put("productId", id);*/
-
         ObjectId objectId = gridFsTemplate.store(
           new ByteArrayInputStream(compressedImage),
           image.getImageName(),
@@ -140,7 +134,7 @@ public class ProductService {
         image.setImageId(objectId.toString());
         images.add(image);
       }
-      product.setImages(images);
+      existingProduct.setImages(images);
 
       return productRepository.save(existingProduct);
     } else {
