@@ -67,11 +67,11 @@ public class ProductController {
   public ResponseEntity<Product> updateProduct(
     @PathVariable String id,
     @RequestParam Map<String, String> productData,
-    @RequestParam("image") MultipartFile imageFile,
+    @RequestParam(value = "image", required = false) MultipartFile imageFile,
     @RequestParam(value = "fimg", required = false) MultipartFile fImgFile,
     @RequestParam(value = "limg", required = false) MultipartFile lImgFile
   ) throws IOException {
-    if (productData.isEmpty() || imageFile.isEmpty()) return ResponseEntity
+    if (productData.isEmpty()) return ResponseEntity
       .badRequest()
       .build();
 

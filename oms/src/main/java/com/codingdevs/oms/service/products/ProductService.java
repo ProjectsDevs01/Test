@@ -35,22 +35,15 @@ public class ProductService {
   public Product saveProduct(Product product, List<MultipartFile> files)
     throws IOException {
     List<Image> images = new ArrayList<>();
-    for (int i = 0; i < files.size(); i++) {
-      MultipartFile file = files.get(i);
+    for (MultipartFile file : files) {
       byte[] compressedImage = compressImg(file.getBytes());
       //byte[] compressedImage = file.getBytes();
 
       Image image = new Image();
-      // image.setImageName(file.getOriginalFilename());
-      if (i == 0) image.setImageName("image"); else if (
+      image.setImageName(file.getOriginalFilename());
+      /*if (i == 0) image.setImageName("image"); else if (
         i == 1
-      ) image.setImageName("fimg"); else image.setImageName("limg");
-
-      //image.setImageData(compressedImage);
-
-      /*DBObject metaData = new BasicDBObject();
-      metaData.put("type", "image");
-      metaData.put("productId", product.getId());*/
+      ) image.setImageName("fimg"); else image.setImageName("limg");*/
 
       ObjectId objectId = gridFsTemplate.store(
         new ByteArrayInputStream(compressedImage),
@@ -100,7 +93,7 @@ public class ProductService {
       productRepository.deleteAll(products);
     }
   }
-
+  
   public Product updateProduct(
     String id,
     Product product,
@@ -110,30 +103,25 @@ public class ProductService {
     if (optionalProduct.isPresent()) {
       Product existingProduct = optionalProduct.get();
 
-      for (Image image : existingProduct.getImages()) {
-        gridFsTemplate.delete(
-          new Query(Criteria.where("_id").is(new ObjectId(image.getImageId())))
-        );
-      }
       existingProduct.setData(product.getData());
 
       List<Image> images = new ArrayList<>();
-      for (int i = 0; i < files.size(); i++) {
-        MultipartFile file = files.get(i);
-        byte[] compressedImage = compressImg(file.getBytes());
-        Image image = new Image();
-        if (i == 0) image.setImageName("image"); else if (
-          i == 1
-        ) image.setImageName("fimg"); else image.setImageName("limg");
-        ObjectId objectId = gridFsTemplate.store(
-          new ByteArrayInputStream(compressedImage),
-          image.getImageName(),
-          file.getContentType(),
-          null
-        );
-        image.setImageId(objectId.toString());
-        images.add(image);
+      for (MultipartFile file : files) {
+        if (file != null) {
+          byte[] compressedImage = compressImg(file.getBytes());
+          Image image = new Image();
+          image.setImageName(file.getOriginalFilename());
+          ObjectId objectId = gridFsTemplate.store(
+            new ByteArrayInputStream(compressedImage),
+            image.getImageName(),
+            file.getContentType(),
+            null
+          );
+          image.setImageId(objectId.toString());
+          images.add(image);
+        }
       }
+
       existingProduct.setImages(images);
 
       return productRepository.save(existingProduct);
