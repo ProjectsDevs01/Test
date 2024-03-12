@@ -154,14 +154,28 @@ public class ProductService {
 
       existingProduct.setData(product.getData());
 
+      List<Image> updatedImages = new ArrayList<>();
       for (Image existingImage : existingProduct.getImages()) {
-        if(existingImage == null) continue;
-        gridFsTemplate.delete(
-          new Query(Criteria.where("_id").is(existingImage.getImageId()))
-        );
+        if (existingImage == null) continue;
+
+        boolean imageModified = false;
+        for (MultipartFile file : files) {
+          if (file == null) continue;
+
+          if (file.getOriginalFilename().equals(existingImage.getImageName())) {
+            gridFsTemplate.delete(
+              new Query(Criteria.where("_id").is(existingImage.getImageId()))
+            );
+            imageModified = true;
+            break;
+          }
+        }
+
+        if (!imageModified) {
+          updatedImages.add(existingImage);
+        }
       }
 
-      List<Image> updatedImages = new ArrayList<>();
       if (files != null) {
         for (MultipartFile file : files) {
           if (file == null) continue;
