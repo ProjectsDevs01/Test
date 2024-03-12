@@ -93,42 +93,6 @@ public class ProductService {
       productRepository.deleteAll(products);
     }
   }
-  
-  public Product updateProduct(
-    String id,
-    Product product,
-    List<MultipartFile> files
-  ) throws IOException {
-    Optional<Product> optionalProduct = productRepository.findById(id);
-    if (optionalProduct.isPresent()) {
-      Product existingProduct = optionalProduct.get();
-
-      existingProduct.setData(product.getData());
-
-      List<Image> images = new ArrayList<>();
-      for (MultipartFile file : files) {
-        if (file != null) {
-          byte[] compressedImage = compressImg(file.getBytes());
-          Image image = new Image();
-          image.setImageName(file.getOriginalFilename());
-          ObjectId objectId = gridFsTemplate.store(
-            new ByteArrayInputStream(compressedImage),
-            image.getImageName(),
-            file.getContentType(),
-            null
-          );
-          image.setImageId(objectId.toString());
-          images.add(image);
-        }
-      }
-
-      existingProduct.setImages(images);
-
-      return productRepository.save(existingProduct);
-    } else {
-      throw new IllegalStateException("Product not found");
-    }
-  }
 
   public Optional<Product> getProductById(String id) {
     return productRepository.findById(id);
@@ -177,5 +141,47 @@ public class ProductService {
     ImageIO.write(resizedImage, "jpg", outputStream);
 
     return outputStream.toByteArray();
+  }
+
+  public Product updateProduct(
+    String id,
+    Product product,
+    List<MultipartFile> files
+  ) throws IOException {
+    Optional<Product> optionalProduct = productRepository.findById(id);
+    if (optionalProduct.isPresent()) {
+      Product existingProduct = optionalProduct.get();
+
+      existingProduct.setData(product.getData());
+
+      for (Image existingImage : existingProduct.getImages()) {
+        gridFsTemplate.delete(
+          new Query(Criteria.where("_id").is(existingImage.getImageId()))
+        );
+      }
+
+      List<Image> updatedImages = new ArrayList<>();
+      if (files != null) {
+        for (MultipartFile file : files) {
+          if (file == null) continue;
+
+          byte[] compressedImage = compressImg(file.getBytes());
+          ObjectId objectId = gridFsTemplate.store(
+            new ByteArrayInputStream(compressedImage),
+            file.getOriginalFilename(),
+            file.getContentType(),
+            null
+          );
+          Image newImage = new Image();
+          newImage.setImageId(objectId.toString());
+          newImage.setImageName(file.getOriginalFilename());
+          updatedImages.add(newImage);
+        }
+      }
+      existingProduct.setImages(updatedImages);
+      return productRepository.save(existingProduct);
+    } else {
+      throw new IllegalStateException("Product not found");
+    }
   }
 }
