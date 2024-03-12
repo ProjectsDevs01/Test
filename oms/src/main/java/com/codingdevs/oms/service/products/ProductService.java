@@ -155,6 +155,7 @@ public class ProductService {
       existingProduct.setData(product.getData());
 
       for (Image existingImage : existingProduct.getImages()) {
+        if(existingImage == null) continue;
         gridFsTemplate.delete(
           new Query(Criteria.where("_id").is(existingImage.getImageId()))
         );
