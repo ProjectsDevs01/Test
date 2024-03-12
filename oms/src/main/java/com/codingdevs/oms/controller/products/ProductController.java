@@ -30,19 +30,18 @@ public class ProductController {
     @PathVariable String customerId,
     @PathVariable String category,
     @RequestParam Map<String, String> productData,
-    @RequestParam("image") MultipartFile imageFile,
+    @RequestParam(value = "image", required = false) MultipartFile imageFile,
     @RequestParam(value = "fimg", required = false) MultipartFile fImgFile,
     @RequestParam(value = "limg", required = false) MultipartFile lImgFile
   ) throws Exception {
-    if (productData.isEmpty() || imageFile.isEmpty()) return ResponseEntity
+    if (productData.isEmpty()) return ResponseEntity
       .badRequest()
       .build();
 
     Product product = new Product();
     List<MultipartFile> files = new ArrayList<>();
 
-    files.add(imageFile);
-
+    if (imageFile != null) files.add(imageFile);
     if (fImgFile != null) files.add(fImgFile);
     if (lImgFile != null) files.add(lImgFile);
 
@@ -78,8 +77,7 @@ public class ProductController {
     Product product = new Product();
     List<MultipartFile> files = new ArrayList<>();
 
-    files.add(imageFile);
-
+    if(imageFile != null) files.add(imageFile);
     if (fImgFile != null) files.add(fImgFile);
     if (lImgFile != null) files.add(lImgFile);
 
