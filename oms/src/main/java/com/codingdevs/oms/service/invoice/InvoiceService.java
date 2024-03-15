@@ -1,6 +1,8 @@
 package com.codingdevs.oms.service.invoice;
 
+import com.codingdevs.oms.model.customer.Customer;
 import com.codingdevs.oms.model.invoice.Invoice;
+import com.codingdevs.oms.repository.customer.CustomerRepository;
 import com.codingdevs.oms.repository.invoice.InvoiceRepository;
 import java.util.List;
 import java.util.Optional;
@@ -13,8 +15,17 @@ public class InvoiceService {
   @Autowired
   private InvoiceRepository invoiceRepository;
 
-  public Invoice saveInvoice(Invoice invoice) {
-    return invoiceRepository.save(invoice);
+  @Autowired
+  private CustomerRepository customerRepository;
+
+  public Invoice saveInvoice(Invoice invoice, String customerId) {
+    Optional<Customer> customer = customerRepository.findById(customerId);
+    if (customer.isPresent()) {
+      invoice.setCustomerName(customer.get().getClientName());
+      invoice.setCustomerId(customerId);
+      return invoiceRepository.save(invoice);
+    }
+    return null;
   }
 
   public List<Invoice> getAllInvoices(String customerId) {
@@ -39,8 +50,6 @@ public class InvoiceService {
     if (existingOptionalInvoice.isPresent()) {
       Invoice existingInvoice = existingOptionalInvoice.get();
       existingInvoice.setArea(invoice.getArea());
-      existingInvoice.setCustomerId(invoice.getCustomerId());
-      existingInvoice.setCustomerName(invoice.getCustomerName());
       existingInvoice.setGstAmount(invoice.getGstAmount());
       existingInvoice.setGstPercentage(invoice.getGstPercentage());
       existingInvoice.setRate(invoice.getRate());
