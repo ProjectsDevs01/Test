@@ -4,6 +4,7 @@ import com.codingdevs.oms.model.customer.Customer;
 import com.codingdevs.oms.model.customer.CustomerDTO;
 import com.codingdevs.oms.repository.customer.CustomerRepository;
 import com.codingdevs.oms.service.dispatch.EntryService;
+import com.codingdevs.oms.service.invoice.InvoiceService;
 import com.codingdevs.oms.service.products.ProductService;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,9 @@ public class CustomerService {
   private EntryService entryService;
 
   @Autowired
+  private InvoiceService invoiceService;
+
+  @Autowired
   MongoTemplate mongoTemplate;
 
   public List<Customer> getAllCustomers() {
@@ -44,6 +48,7 @@ public class CustomerService {
   public void deleteCustomerById(String id) {
     productService.deleteAllProductsByCustomer(id);
     entryService.deleteAllEntriesByCustomer(id);
+    invoiceService.deleteAllInvoicesByCustomer(id);
     customerRepository.deleteById(id);
   }
 
