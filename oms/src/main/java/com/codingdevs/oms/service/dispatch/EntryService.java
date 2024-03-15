@@ -29,7 +29,7 @@ public class EntryService {
 
   public List<Entry> getAllEntries(String customerId) {
     List<Entry> entries = entryRepository.findByCustomerId(customerId);
-    if(entries.isEmpty() || entries == null) return null;
+    if (entries.isEmpty() || entries == null) return null;
     return entries;
   }
 
@@ -39,10 +39,11 @@ public class EntryService {
 
   public void deleteAllEntriesByCustomer(String customerId) {
     List<Entry> entries = entryRepository.findByCustomerId(customerId);
-    if(entries != null) {
+    if (entries != null) {
       entryRepository.deleteAll(entries);
     }
   }
+
   public Entry updateEntry(String entryId, Entry entry) {
     Optional<Entry> optionalExixtingEntry = entryRepository.findById(entryId);
     if (optionalExixtingEntry.isPresent()) {

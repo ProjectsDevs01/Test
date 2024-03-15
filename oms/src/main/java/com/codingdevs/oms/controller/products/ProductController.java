@@ -34,9 +34,7 @@ public class ProductController {
     @RequestParam(value = "fimg", required = false) MultipartFile fImgFile,
     @RequestParam(value = "limg", required = false) MultipartFile lImgFile
   ) throws Exception {
-    if (productData.isEmpty()) return ResponseEntity
-      .badRequest()
-      .build();
+    if (productData.isEmpty()) return ResponseEntity.badRequest().build();
 
     Product product = new Product();
     List<MultipartFile> files = new ArrayList<>();
@@ -70,14 +68,12 @@ public class ProductController {
     @RequestParam(value = "fimg", required = false) MultipartFile fImgFile,
     @RequestParam(value = "limg", required = false) MultipartFile lImgFile
   ) throws IOException {
-    if (productData.isEmpty()) return ResponseEntity
-      .badRequest()
-      .build();
+    if (productData.isEmpty()) return ResponseEntity.badRequest().build();
 
     Product product = new Product();
     List<MultipartFile> files = new ArrayList<>();
 
-    if(imageFile != null) files.add(imageFile);
+    if (imageFile != null) files.add(imageFile);
     if (fImgFile != null) files.add(fImgFile);
     if (lImgFile != null) files.add(lImgFile);
 

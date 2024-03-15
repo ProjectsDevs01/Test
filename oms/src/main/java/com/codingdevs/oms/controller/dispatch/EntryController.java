@@ -29,7 +29,7 @@ public class EntryController {
     if (entry == null) return ResponseEntity.badRequest().build();
     entry.setCustomerId(customerId);
     Entry savedEntry = entryService.saveEntry(entry, customerId);
-    if(savedEntry == null) return ResponseEntity.notFound().build();
+    if (savedEntry == null) return ResponseEntity.notFound().build();
     return ResponseEntity.ok(savedEntry);
   }
 
