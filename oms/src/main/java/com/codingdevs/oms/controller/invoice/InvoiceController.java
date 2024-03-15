@@ -26,6 +26,7 @@ public class InvoiceController {
     @PathVariable String customerId,
     @RequestBody Invoice invoice
   ) {
+    if(invoice == null) return ResponseEntity.badRequest().build();
     Invoice savedInvoice = invoiceService.saveInvoice(invoice, customerId);
     if (savedInvoice == null) return ResponseEntity.notFound().build();
     return ResponseEntity.ok(savedInvoice);

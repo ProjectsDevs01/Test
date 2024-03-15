@@ -1,6 +1,8 @@
 package com.codingdevs.oms.service.dispatch;
 
+import com.codingdevs.oms.model.customer.Customer;
 import com.codingdevs.oms.model.dispatch.Entry;
+import com.codingdevs.oms.repository.customer.CustomerRepository;
 import com.codingdevs.oms.repository.dispatch.EntryRepository;
 import java.util.List;
 import java.util.Optional;
@@ -13,8 +15,16 @@ public class EntryService {
   @Autowired
   private EntryRepository entryRepository;
 
-  public Entry saveEntry(Entry entry) {
-    return entryRepository.save(entry);
+  @Autowired
+  private CustomerRepository customerRepository;
+
+  public Entry saveEntry(Entry entry, String customerId) {
+    Optional<Customer> customer = customerRepository.findById(customerId);
+    if (customer.isPresent()) {
+      entry.setCustomerId(customerId);
+      return entryRepository.save(entry);
+    }
+    return null;
   }
 
   public List<Entry> getAllEntries(String customerId) {

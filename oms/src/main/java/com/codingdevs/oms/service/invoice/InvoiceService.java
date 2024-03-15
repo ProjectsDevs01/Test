@@ -21,7 +21,6 @@ public class InvoiceService {
   public Invoice saveInvoice(Invoice invoice, String customerId) {
     Optional<Customer> customer = customerRepository.findById(customerId);
     if (customer.isPresent()) {
-      invoice.setCustomerName(customer.get().getClientName());
       invoice.setCustomerId(customerId);
       return invoiceRepository.save(invoice);
     }
