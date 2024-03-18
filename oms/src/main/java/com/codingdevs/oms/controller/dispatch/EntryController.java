@@ -2,7 +2,12 @@ package com.codingdevs.oms.controller.dispatch;
 
 import com.codingdevs.oms.model.dispatch.Entry;
 import com.codingdevs.oms.service.dispatch.EntryService;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,9 +15,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/dispatch")
@@ -24,12 +30,15 @@ public class EntryController {
   @PostMapping("/{customerId}")
   public ResponseEntity<Entry> saveEntry(
     @PathVariable String customerId,
-    @RequestBody Entry entry
-  ) {
-    if (entry == null) return ResponseEntity.badRequest().build();
+    @RequestParam Map<String, String> entryData,
+    @RequestParam(value = "image", required = false) MultipartFile imageFile
+  ) throws IOException {
+    Entry entry = new Entry();
+    List<MultipartFile> files = new ArrayList<>();
+    if (imageFile != null) files.add(imageFile);
     entry.setCustomerId(customerId);
-    Entry savedEntry = entryService.saveEntry(entry, customerId);
-    if (savedEntry == null) return ResponseEntity.notFound().build();
+    entry.setData(entryData);
+    Entry savedEntry = entryService.saveEntry(entry, files);
     return ResponseEntity.ok(savedEntry);
   }
 
@@ -44,10 +53,14 @@ public class EntryController {
   @PutMapping("/{entryId}")
   public ResponseEntity<Entry> updateEntry(
     @PathVariable String entryId,
-    @RequestBody Entry entry
-  ) {
-    Entry savedEntry = entryService.updateEntry(entryId, entry);
-    if (savedEntry == null) return ResponseEntity.notFound().build();
+    @RequestParam Map<String, String> entryData,
+    @RequestParam(value = "image", required = false) MultipartFile imageFile
+  ) throws IOException {
+    Entry entry = new Entry();
+    List<MultipartFile> files = new ArrayList<>();
+    if (imageFile != null) files.add(imageFile);
+    entry.setData(entryData);
+    Entry savedEntry = entryService.updateEntry(entryId, entry, files);
     return ResponseEntity.ok(savedEntry);
   }
 

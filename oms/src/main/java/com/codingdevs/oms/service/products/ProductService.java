@@ -1,7 +1,7 @@
 package com.codingdevs.oms.service.products;
 
-import com.codingdevs.oms.model.products.Image;
 import com.codingdevs.oms.model.products.Product;
+import com.codingdevs.oms.model.products.ProductImage;
 import com.codingdevs.oms.repository.products.ProductRepository;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import java.awt.image.BufferedImage;
@@ -34,12 +34,12 @@ public class ProductService {
 
   public Product saveProduct(Product product, List<MultipartFile> files)
     throws IOException {
-    List<Image> images = new ArrayList<>();
+    List<ProductImage> images = new ArrayList<>();
     for (MultipartFile file : files) {
       byte[] compressedImage = compressImg(file.getBytes());
       //byte[] compressedImage = file.getBytes();
 
-      Image image = new Image();
+      ProductImage image = new ProductImage();
       image.setImageName(file.getOriginalFilename());
       /*if (i == 0) image.setImageName("image"); else if (
         i == 1
@@ -66,7 +66,7 @@ public class ProductService {
     if (optionalProduct.isPresent()) {
       Product product = optionalProduct.get();
       if (!product.getImages().isEmpty()) {
-        for (Image image : product.getImages()) {
+        for (ProductImage image : product.getImages()) {
           gridFsTemplate.delete(
             new Query(
               Criteria.where("_id").is(new ObjectId(image.getImageId()))
@@ -74,7 +74,7 @@ public class ProductService {
           );
         }
       }
-      productRepository.deleteById(id);
+      productRepository.delete(product);
     }
   }
 
@@ -82,7 +82,7 @@ public class ProductService {
     List<Product> products = productRepository.findByCustomerId(cid);
     if (products != null) {
       for (Product product : products) {
-        for (Image image : product.getImages()) {
+        for (ProductImage image : product.getImages()) {
           gridFsTemplate.delete(
             new Query(
               Criteria.where("_id").is(new ObjectId(image.getImageId()))
@@ -103,7 +103,7 @@ public class ProductService {
     List<Product> products = productRepository.findByCustomerId(cid);
     if (products.isEmpty()) return null;
     for (Product product : products) {
-      for (Image image : product.getImages()) {
+      for (ProductImage image : product.getImages()) {
         GridFSFile file = gridFsTemplate.findOne(
           new Query(Criteria.where("_id").is(new ObjectId(image.getImageId())))
         );
@@ -154,8 +154,8 @@ public class ProductService {
 
       existingProduct.setData(product.getData());
 
-      List<Image> updatedImages = new ArrayList<>();
-      for (Image existingImage : existingProduct.getImages()) {
+      List<ProductImage> updatedImages = new ArrayList<>();
+      for (ProductImage existingImage : existingProduct.getImages()) {
         if (existingImage == null) continue;
 
         boolean imageModified = false;
@@ -187,7 +187,7 @@ public class ProductService {
             file.getContentType(),
             null
           );
-          Image newImage = new Image();
+          ProductImage newImage = new ProductImage();
           newImage.setImageId(objectId.toString());
           newImage.setImageName(file.getOriginalFilename());
           updatedImages.add(newImage);

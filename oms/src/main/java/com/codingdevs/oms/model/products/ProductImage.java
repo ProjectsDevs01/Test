@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Image {
+public class ProductImage {
 
   private String imageName;
   private String imageId;

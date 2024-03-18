@@ -3,6 +3,10 @@ package com.codingdevs.oms.model.dispatch;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,13 +20,6 @@ public class Entry {
   private String id;
 
   private String customerId;
-  private String customerName;
-  private String areaOfRoom;
-  private String catalogName;
-  private String quantity;
-  private String quantityOrdered;
-  private String companyName;
-  private String orderNum;
-  private String docNumber;
-  private String transitInformation;
+  private Map<String, String> data;
+  private List<EntryImage> entryImages;
 }

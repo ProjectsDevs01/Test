@@ -21,5 +21,5 @@ public class Product {
   private String customerId;
 
   private Map<String, String> data;
-  private List<Image> images;
+  private List<ProductImage> images;
 }
