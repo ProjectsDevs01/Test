@@ -29,7 +29,7 @@ public class InvoiceController {
     @PathVariable String category,
     @RequestParam Map<String, String> invoiceData
   ) {
-    if (invoiceData == null) return ResponseEntity.badRequest().build();
+    if (invoiceData.isEmpty()) return ResponseEntity.badRequest().build();
     Invoice savedInvoice = invoiceService.saveInvoice(customerId, category, invoiceData);
     if (savedInvoice == null) return ResponseEntity.ok("Customer not found");
     return ResponseEntity.ok(savedInvoice);
