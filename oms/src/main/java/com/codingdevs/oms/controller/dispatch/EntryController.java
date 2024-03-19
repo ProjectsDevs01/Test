@@ -31,10 +31,7 @@ public class EntryController {
     @RequestParam Map<String, String> entryData,
     @RequestParam(value = "image", required = false) MultipartFile imageFile
   ) throws IOException {
-    if (entryData.isEmpty()) return ResponseEntity
-      .badRequest()
-      .header("error", "Entry data is empty")
-      .build();
+    
     Entry entry = new Entry();
     List<MultipartFile> files = new ArrayList<>();
     if (imageFile != null) files.add(imageFile);
@@ -62,10 +59,7 @@ public class EntryController {
     @RequestParam Map<String, String> entryData,
     @RequestParam(value = "image", required = false) MultipartFile imageFile
   ) throws IOException {
-    if (entryData.isEmpty()) return ResponseEntity
-      .badRequest()
-      .header("error", "Entry data is empty")
-      .build();
+    
     Entry entry = new Entry();
     List<MultipartFile> files = new ArrayList<>();
     if (imageFile != null) files.add(imageFile);

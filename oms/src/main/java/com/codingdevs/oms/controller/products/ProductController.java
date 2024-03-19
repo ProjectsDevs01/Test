@@ -34,10 +34,6 @@ public class ProductController {
     @RequestParam(value = "fimg", required = false) MultipartFile fImgFile,
     @RequestParam(value = "limg", required = false) MultipartFile lImgFile
   ) throws Exception {
-    if (productData.isEmpty()) return ResponseEntity
-      .badRequest()
-      .header("error", "Product data is empty")
-      .build();
 
     Product product = new Product();
     List<MultipartFile> files = new ArrayList<>();
