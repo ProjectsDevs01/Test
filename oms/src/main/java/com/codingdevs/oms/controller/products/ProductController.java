@@ -26,7 +26,7 @@ public class ProductController {
   private ProductService productService;
 
   @PostMapping("/{customerId}/{category}")
-  public ResponseEntity<Product> saveProduct(
+  public ResponseEntity<?> saveProduct(
     @PathVariable String customerId,
     @PathVariable String category,
     @RequestParam Map<String, String> productData,
@@ -34,7 +34,10 @@ public class ProductController {
     @RequestParam(value = "fimg", required = false) MultipartFile fImgFile,
     @RequestParam(value = "limg", required = false) MultipartFile lImgFile
   ) throws Exception {
-    if (productData.isEmpty()) return ResponseEntity.badRequest().build();
+    if (productData.isEmpty()) return ResponseEntity
+      .badRequest()
+      .header("error", "Product data is empty")
+      .build();
 
     Product product = new Product();
     List<MultipartFile> files = new ArrayList<>();
@@ -48,6 +51,11 @@ public class ProductController {
     product.setData(productData);
 
     Product savedProduct = productService.saveProduct(product, files);
+
+    if (savedProduct == null) return ResponseEntity
+      .badRequest()
+      .header("error", "Customer not found")
+      .build();
 
     return ResponseEntity.ok(savedProduct);
   }
@@ -68,7 +76,10 @@ public class ProductController {
     @RequestParam(value = "fimg", required = false) MultipartFile fImgFile,
     @RequestParam(value = "limg", required = false) MultipartFile lImgFile
   ) throws IOException {
-    if (productData.isEmpty()) return ResponseEntity.badRequest().build();
+    if (productData.isEmpty()) return ResponseEntity
+      .badRequest()
+      .header("error", "Product data is empty")
+      .build();
 
     Product product = new Product();
     List<MultipartFile> files = new ArrayList<>();
@@ -79,6 +90,11 @@ public class ProductController {
 
     product.setData(productData);
     Product savedProduct = productService.updateProduct(id, product, files);
+
+    if (savedProduct == null) return ResponseEntity
+      .badRequest()
+      .header("error", "Product not found")
+      .build();
     return ResponseEntity.ok(savedProduct);
   }
 
