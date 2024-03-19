@@ -2,12 +2,10 @@ package com.codingdevs.oms.controller.dispatch;
 
 import com.codingdevs.oms.model.dispatch.Entry;
 import com.codingdevs.oms.service.dispatch.EntryService;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,25 +26,30 @@ public class EntryController {
   private EntryService entryService;
 
   @PostMapping("/{customerId}")
-  public ResponseEntity<?> saveEntry(
+  public ResponseEntity<Entry> saveEntry(
     @PathVariable String customerId,
     @RequestParam Map<String, String> entryData,
     @RequestParam(value = "image", required = false) MultipartFile imageFile
   ) throws IOException {
+    if (entryData.isEmpty()) return ResponseEntity
+      .badRequest()
+      .header("error", "Entry data is empty")
+      .build();
     Entry entry = new Entry();
     List<MultipartFile> files = new ArrayList<>();
     if (imageFile != null) files.add(imageFile);
     entry.setCustomerId(customerId);
     entry.setData(entryData);
     Entry savedEntry = entryService.saveEntry(entry, files);
-    if(savedEntry == null) return ResponseEntity.ok("Customer not found");
+    if (savedEntry == null) return ResponseEntity
+      .badRequest()
+      .header("error", "Customer not found")
+      .build();
     return ResponseEntity.ok(savedEntry);
   }
 
   @GetMapping("/{customerId}")
-  public ResponseEntity<?> getEntries(
-    @PathVariable String customerId
-  ) {
+  public ResponseEntity<?> getEntries(@PathVariable String customerId) {
     List<Entry> entries = entryService.getAllEntries(customerId);
     return ResponseEntity.ok(entries);
   }
@@ -57,11 +60,19 @@ public class EntryController {
     @RequestParam Map<String, String> entryData,
     @RequestParam(value = "image", required = false) MultipartFile imageFile
   ) throws IOException {
+    if (entryData.isEmpty()) return ResponseEntity
+      .badRequest()
+      .header("error", "Entry data is empty")
+      .build();
     Entry entry = new Entry();
     List<MultipartFile> files = new ArrayList<>();
     if (imageFile != null) files.add(imageFile);
     entry.setData(entryData);
     Entry savedEntry = entryService.updateEntry(entryId, entry, files);
+    if (savedEntry == null) return ResponseEntity
+      .badRequest()
+      .header("error", "Entry not found")
+      .build();
     return ResponseEntity.ok(savedEntry);
   }
 
