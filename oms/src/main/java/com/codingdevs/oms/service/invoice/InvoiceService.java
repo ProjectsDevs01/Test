@@ -5,6 +5,7 @@ import com.codingdevs.oms.model.invoice.Invoice;
 import com.codingdevs.oms.repository.customer.CustomerRepository;
 import com.codingdevs.oms.repository.invoice.InvoiceRepository;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,17 @@ public class InvoiceService {
   @Autowired
   private CustomerRepository customerRepository;
 
-  public Invoice saveInvoice(Invoice invoice, String customerId) {
+  public Invoice saveInvoice(
+    String customerId,
+    String category,
+    Map<String, String> data
+  ) {
     Optional<Customer> customer = customerRepository.findById(customerId);
     if (customer.isPresent()) {
+      Invoice invoice = new Invoice();
       invoice.setCustomerId(customerId);
+      invoice.setCategory(category);
+      invoice.setData(data);
       return invoiceRepository.save(invoice);
     }
     return null;
@@ -44,18 +52,11 @@ public class InvoiceService {
     invoiceRepository.deleteById(id);
   }
 
-  public Invoice updateInvoice(String id, Invoice invoice) {
+  public Invoice updateInvoice(String id, Map<String, String> invoiceData) {
     Optional<Invoice> existingOptionalInvoice = invoiceRepository.findById(id);
     if (existingOptionalInvoice.isPresent()) {
       Invoice existingInvoice = existingOptionalInvoice.get();
-      existingInvoice.setArea(invoice.getArea());
-      existingInvoice.setGstAmount(invoice.getGstAmount());
-      existingInvoice.setGstPercentage(invoice.getGstPercentage());
-      existingInvoice.setRate(invoice.getRate());
-      existingInvoice.setQuantity(invoice.getQuantity());
-      existingInvoice.setTotal(invoice.getTotal());
-      existingInvoice.setAmount(invoice.getAmount());
-
+      existingInvoice.setData(invoiceData);
       return invoiceRepository.save(existingInvoice);
     } else {
       throw new IllegalStateException("Invoice not found");
