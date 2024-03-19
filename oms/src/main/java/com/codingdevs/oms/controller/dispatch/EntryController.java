@@ -28,7 +28,7 @@ public class EntryController {
   private EntryService entryService;
 
   @PostMapping("/{customerId}")
-  public ResponseEntity<Entry> saveEntry(
+  public ResponseEntity<?> saveEntry(
     @PathVariable String customerId,
     @RequestParam Map<String, String> entryData,
     @RequestParam(value = "image", required = false) MultipartFile imageFile
@@ -39,11 +39,12 @@ public class EntryController {
     entry.setCustomerId(customerId);
     entry.setData(entryData);
     Entry savedEntry = entryService.saveEntry(entry, files);
+    if(savedEntry == null) return ResponseEntity.ok("Customer not found");
     return ResponseEntity.ok(savedEntry);
   }
 
   @GetMapping("/{customerId}")
-  public ResponseEntity<List<Entry>> getEntries(
+  public ResponseEntity<?> getEntries(
     @PathVariable String customerId
   ) {
     List<Entry> entries = entryService.getAllEntries(customerId);

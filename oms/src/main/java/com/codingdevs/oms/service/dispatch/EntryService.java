@@ -110,6 +110,7 @@ public class EntryService {
     List<Entry> entries = entryRepository.findByCustomerId(customerId);
     if (entries != null) {
       for (Entry entry : entries) {
+        if(entry.getEntryImages().isEmpty() || entry.getEntryImages() == null) continue;
         for (EntryImage entryImage : entry.getEntryImages()) {
           gridFsTemplate.delete(
             new Query(
