@@ -174,7 +174,7 @@ public class EntryService {
           updatedImages.add(newImage);
         }
       }
-      entry.setEntryImages(updatedImages);
+      existingEntry.setEntryImages(updatedImages);
       return entryRepository.save(existingEntry);
     } else return null;
   }
