@@ -128,19 +128,19 @@ public class EntryService {
   public Entry updateEntry(
     String entryId,
     Entry entry,
-    List<MultipartFile> imageFile
+    List<MultipartFile> files
   ) throws IOException {
     Optional<Entry> optionalExixtingEntry = entryRepository.findById(entryId);
     if (optionalExixtingEntry.isPresent()) {
       Entry existingEntry = optionalExixtingEntry.get();
 
       existingEntry.setData(entry.getData());
-      List<EntryImage> updatedImages = existingEntry.getEntryImages();
+      List<EntryImage> updatedImages = new ArrayList<>();
 
-      for (EntryImage existingImage : updatedImages) {
+      for (EntryImage existingImage : existingEntry.getEntryImages()) {
         if (existingImage == null) continue;
         boolean imageModified = false;
-        for (MultipartFile file : imageFile) {
+        for (MultipartFile file : files) {
           if (file == null) continue;
 
           if (file.getOriginalFilename().equals(existingImage.getImageName())) {
@@ -157,8 +157,8 @@ public class EntryService {
         }
       }
 
-      if (imageFile != null) {
-        for (MultipartFile file : imageFile) {
+      if (files != null) {
+        for (MultipartFile file : files) {
           if (file == null) continue;
 
           byte[] compressedImage = compressImg(file.getBytes());
