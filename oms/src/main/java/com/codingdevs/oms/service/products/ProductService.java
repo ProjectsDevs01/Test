@@ -82,6 +82,7 @@ public class ProductService {
     List<Product> products = productRepository.findByCustomerId(cid);
     if (products != null) {
       for (Product product : products) {
+        if(product.getImages().isEmpty() || product.getImages() == null) continue;
         for (ProductImage image : product.getImages()) {
           gridFsTemplate.delete(
             new Query(
