@@ -26,7 +26,7 @@ public class ProductController {
   private ProductService productService;
 
   @PostMapping("/{customerId}/{category}")
-  public ResponseEntity<?> saveProduct(
+  public ResponseEntity<Product> saveProduct(
     @PathVariable String customerId,
     @PathVariable String category,
     @RequestParam Map<String, String> productData,
