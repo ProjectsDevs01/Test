@@ -1,7 +1,9 @@
 package com.codingdevs.oms.service.products;
 
+import com.codingdevs.oms.model.customer.Customer;
 import com.codingdevs.oms.model.products.Product;
 import com.codingdevs.oms.model.products.ProductImage;
+import com.codingdevs.oms.repository.customer.CustomerRepository;
 import com.codingdevs.oms.repository.products.ProductRepository;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import java.awt.image.BufferedImage;
@@ -32,8 +34,15 @@ public class ProductService {
   @Autowired
   private GridFsTemplate gridFsTemplate;
 
+  @Autowired
+  private CustomerRepository customerRepository;
+
   public Product saveProduct(Product product, List<MultipartFile> files)
     throws IOException {
+    Optional<Customer> customer = customerRepository.findById(
+      product.getCustomerId()
+    );
+    if (!customer.isPresent()) return null;
     List<ProductImage> images = new ArrayList<>();
     for (MultipartFile file : files) {
       byte[] compressedImage = compressImg(file.getBytes());
@@ -82,7 +91,9 @@ public class ProductService {
     List<Product> products = productRepository.findByCustomerId(cid);
     if (products != null) {
       for (Product product : products) {
-        if(product.getImages().isEmpty() || product.getImages() == null) continue;
+        if (
+          product.getImages().isEmpty() || product.getImages() == null
+        ) continue;
         for (ProductImage image : product.getImages()) {
           gridFsTemplate.delete(
             new Query(
@@ -196,8 +207,6 @@ public class ProductService {
       }
       existingProduct.setImages(updatedImages);
       return productRepository.save(existingProduct);
-    } else {
-      throw new IllegalStateException("Product not found");
-    }
+    } else return null;
   }
 }
