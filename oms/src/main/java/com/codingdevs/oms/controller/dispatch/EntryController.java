@@ -49,7 +49,9 @@ public class EntryController {
   }
 
   @GetMapping("/{customerId}")
-  public ResponseEntity<?> getEntries(@PathVariable String customerId) {
+  public ResponseEntity<List<Entry>> getEntries(
+    @PathVariable String customerId
+  ) {
     List<Entry> entries = entryService.getAllEntries(customerId);
     return ResponseEntity.ok(entries);
   }
